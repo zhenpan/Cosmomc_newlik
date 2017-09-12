@@ -45,7 +45,7 @@
     if(Theory%sigma_8==0) &
                 call MpiStop('ERROR: sigma_8 have not been computed. S8_LnLike')
 
-    theoryval = Theory%sigma_8*( (CMB%omb+CMB%omdm)/this%sm8_omt)**this%sm8_pwr
+    theoryval = Theory%sigma_8*( (1.d0-CMB%omv-CMB%omk)/this%sm8_omt)**this%sm8_pwr
    
     S8_LnLike = (theoryval - this%sm8)**2/(2*this%sm8_err**2)
 
