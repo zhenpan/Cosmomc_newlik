@@ -92,7 +92,9 @@
     !other variables, options, derived variables, etc.
 
     integer, parameter :: NonLinear_none=0, NonLinear_Pk =1, NonLinear_Lens=2
-    integer, parameter :: NonLinear_both=3  !JD 08/13 added so both can be donrf    ! Main parameters type
+    integer, parameter :: NonLinear_both=3  !JD 08/13 added so both can be done
+
+    ! Main parameters type
     type CAMBparams
 
         logical   :: WantCls, WantTransfer
@@ -111,10 +113,6 @@
         real(dl)  :: omegab, omegac, omegav, omegan
         !Omega baryon, CDM, Lambda and massive neutrino
         real(dl)  :: H0,TCMB,yhe,Num_Nu_massless
-        real(dl)  :: omegac_idm     !ZP Omega of idm  (interacting dark matter)
-	real(dl)  :: Num_drf        !ZP num of drf (dark radiation fluid)
-	real(dl)  :: Gamma0         !ZP idm-drf coupling constant
-        logical   :: has_idmdrf_cpl !ZP    
         integer   :: Num_Nu_massive !sum of Nu_mass_numbers below
         integer   :: Nu_mass_eigenstates  !1 for degenerate masses
         logical   :: share_delta_neff !take fractional part to heat all eigenstates the same
@@ -177,8 +175,6 @@
     !     adotrad - a(tau) in radiation era
 
     real(dl) grhom,grhog,grhor,grhob,grhoc,grhov,grhornomass,grhok
-    real(dl) grhoc_idm                               !ZP idm 
-    real(dl) grhog_drf                               !ZP grhor*number of drf 
     real(dl) taurst,dtaurec,taurend, tau_maxvis,adotrad
 
     !Neutrinos
@@ -367,7 +363,6 @@
     grhor = 7._dl/8*(4._dl/11)**(4._dl/3)*grhog !7/8*(4/11)^(4/3)*grhog (per neutrino species)
     !grhor=3.3957d-14*tcmb**4
 
-    grhog_drf=grhor*CP%Num_drf      !ZP drf 
     !correction for fractional number of neutrinos, e.g. 3.04 to give slightly higher T_nu hence rhor
     !for massive Nu_mass_degeneracies parameters account for heating from grhor
 
@@ -380,9 +375,8 @@
     grhob=grhom*CP%omegab
     grhov=grhom*CP%omegav
     grhok=grhom*CP%omegak
-    grhoc_idm=grhom*CP%omegac_idm       !ZP idm
     !  adotrad gives the relation a(tau) in the radiation era:
-    adotrad = sqrt((grhog+grhog_drf+grhornomass+sum(grhormass(1:CP%Nu_mass_eigenstates)))/3) !drf
+    adotrad = sqrt((grhog+grhornomass+sum(grhormass(1:CP%Nu_mass_eigenstates)))/3)
 
 
     Nnow = CP%omegab*(1-CP%yhe)*grhom*c**2/kappa/m_H/Mpc**2
@@ -427,17 +421,14 @@
     else if (FeedbackLevel > 0 .and. .not. call_again) then
         write(*,'("Om_b h^2             = ",f9.6)') CP%omegab*(CP%H0/100)**2
         write(*,'("Om_c h^2             = ",f9.6)') CP%omegac*(CP%H0/100)**2
-        write(*,'("Om_idm h^2           = ",f9.6)') CP%omegac_idm*(CP%H0/100)**2
         write(*,'("Om_nu h^2            = ",f9.6)') CP%omegan*(CP%H0/100)**2
         write(*,'("Om_Lambda            = ",f9.6)') CP%omegav
         write(*,'("Om_K                 = ",f9.6)') CP%omegak
         write(*,'("Om_m (1-Om_K-Om_L)   = ",f9.6)') 1-CP%omegak-CP%omegav
         write(*,'("100 theta (CosmoMC)  = ",f9.6)') 100*CosmomcTheta()
-        write(*,'("Num_drf              = ",f9.6)') CP%Num_drf                  !drf
-        write(*,'("Gamma0(10^-7 Mpc^-2) = ",f9.6)') CP%Gamma0*1.e7              !drf
         if (CP%Num_Nu_Massive > 0) then
             write(*,'("N_eff (total)        = ",f9.6)') nu_massless_degeneracy + &
-                sum(CP%Nu_mass_degeneracies(1:CP%Nu_mass_eigenstates)) + CP%Num_drf
+                sum(CP%Nu_mass_degeneracies(1:CP%Nu_mass_eigenstates))
             do nu_i=1, CP%Nu_mass_eigenstates
                 conv = k_B*(8*grhor/grhog/7)**0.25*CP%tcmb/eV * &
                     (CP%nu_mass_degeneracies(nu_i)/CP%nu_mass_numbers(nu_i))**0.25 !approx 1.68e-4
@@ -629,8 +620,7 @@
     end function ComovingRadialDistance
 
     function Hofz(z)
-    !non-comoving Hubble in MPC units, divide by MPC_in_sec to get in SI units
-    !multiply by c/1e3 to get in km/s/Mpc units
+    !!non-comoving Hubble in MPC units, divide by MPC_in_sec to get in SI units
     real(dl) Hofz, dtauda,a
     real(dl), intent(in) :: z
     external dtauda
@@ -639,20 +629,6 @@
     Hofz = 1/(a**2*dtauda(a))
 
     end function Hofz
-
-    subroutine HofzArr(arr, z, n)
-    !non-comoving Hubble in MPC units, divide by MPC_in_sec to get in SI units
-    !multiply by c/1e3 to get in km/s/Mpc units
-    integer,intent(in) :: n
-    real(dl), intent(out) :: arr(n)
-    real(dl), intent(in) :: z(n)
-    integer i
-
-    do i=1, n
-        arr(i) = Hofz(z(i))
-    end do
-
-    end subroutine HofzArr
 
     real(dl) function BAO_D_v_from_DA_H(z, DA, Hz)
     real(dl), intent(in) :: z, DA, Hz
@@ -709,7 +685,7 @@
     external rombint
 
     ombh2 = CP%omegab*(CP%h0/100.0d0)**2
-    omdmh2 = (CP%omegac+CP%omegan+CP%omegac_idm)*(CP%h0/100.0d0)**2   !ZP idm
+    omdmh2 = (CP%omegac+CP%omegan)*(CP%h0/100.0d0)**2
 
     !!From Hu & Sugiyama
     zstar =  1048*(1+0.00124*ombh2**(-0.738))*(1+ &
@@ -1745,19 +1721,18 @@
     use Errors
     implicit none
     public
-    integer, parameter :: Transfer_kh =1, Transfer_cdm=2, Transfer_idm=3, Transfer_b=4,Transfer_g=5, &
-        Transfer_drf=6, Transfer_r = 7,  Transfer_nu=8, & !ZP drf and massless neutrino
-    Transfer_tot=9, Transfer_nonu=10, Transfer_tot_de=11,  &
+    integer, parameter :: Transfer_kh =1, Transfer_cdm=2,Transfer_b=3,Transfer_g=4, &
+        Transfer_r=5, Transfer_nu = 6,  & !massless and massive neutrino
+    Transfer_tot=7, Transfer_nonu=8, Transfer_tot_de=9,  &
         ! total perturbations with and without neutrinos, with neutrinos+dark energy in the numerator
-        Transfer_Weyl = 12, & ! the Weyl potential, for lensing and ISW
-    Transfer_Newt_vel_cdm=13, Transfer_Newt_vel_baryon=14,   & ! -k v_Newtonian/H
-    Transfer_vel_baryon_cdm = 15, & !relative velocity of baryons and CDM
-    Transfer_vel_idm = 16                                             !ZP idm velocity
+        Transfer_Weyl = 10, & ! the Weyl potential, for lensing and ISW
+    Transfer_Newt_vel_cdm=11, Transfer_Newt_vel_baryon=12,   & ! -k v_Newtonian/H
+    Transfer_vel_baryon_cdm = 13 !relative velocity of baryons and CDM
 
-    integer, parameter :: Transfer_max = Transfer_vel_idm
+    integer, parameter :: Transfer_max = Transfer_vel_baryon_cdm
     character(LEN=name_tag_len) :: Transfer_name_tags(Transfer_max-1) = &
-        ['CDM     ', 'idm     ', 'baryon  ', 'photon  ', 'drf     ', 'nu      ', 'mass_nu ', 'total   ', &
-        'no_nu   ', 'total_de', 'Weyl    ', 'v_CDM   ', 'v_b     ', 'v_b-v_c ', 'v_idm']
+        ['CDM     ', 'baryon  ', 'photon  ', 'nu      ', 'mass_nu ', 'total   ', &
+        'no_nu   ', 'total_de', 'Weyl    ', 'v_CDM   ', 'v_b     ', 'v_b-v_c ']
 
     logical :: transfer_interp_matterpower  = .true. !output regular grid in log k
     !set to false to output calculated values for later interpolation
@@ -2684,8 +2659,8 @@
     integer noutput
     external rombint
 
-    call Recombination_Init(CP%Recomb, CP%omegac+CP%omegac_idm, CP%omegab,CP%Omegan, CP%Omegav, &
-        CP%h0,CP%tcmb,CP%yhe,CP%Num_Nu_massless + CP%Num_Nu_massive)       !ZP idm
+    call Recombination_Init(CP%Recomb, CP%omegac, CP%omegab,CP%Omegan, CP%Omegav, &
+        CP%h0,CP%tcmb,CP%yhe,CP%Num_Nu_massless + CP%Num_Nu_massive)
     !almost all the time spent here
     if (global_error_flag/=0) return
     Maxtau=taumax
@@ -2703,7 +2678,7 @@
     last_dotmu = 0
 
     matter_verydom_tau = 0
-    a_verydom = AccuracyBoost*5*(grhog+grhornomass)/(grhoc+grhob+grhoc_idm)  !ZP idm
+    a_verydom = AccuracyBoost*5*(grhog+grhornomass)/(grhoc+grhob)
 
     !  Initial conditions: assume radiation-dominated universe.
     tau01=tauminn
@@ -2932,7 +2907,7 @@
         ThermoDerivedParams( derived_rdrag ) = rs
         ThermoDerivedParams( derived_kD ) =  sqrt(1.d0/(rombint(ddamping_da, 1d-8, 1/(z_star+1), 1d-6)/6))
         ThermoDerivedParams( derived_thetaD ) =  100*pi/ThermoDerivedParams( derived_kD )/DA
-        z_eq = (grhob+grhoc+grhoc_idm)/(grhog+grhog_drf+grhornomass+sum(grhormass(1:CP%Nu_mass_eigenstates))) -1   !ZP drf and idm
+        z_eq = (grhob+grhoc)/(grhog+grhornomass+sum(grhormass(1:CP%Nu_mass_eigenstates))) -1
         ThermoDerivedParams( derived_zEQ ) = z_eq
         a_eq = 1/(1+z_eq)
         ThermoDerivedParams( derived_kEQ ) = 1/(a_eq*dtauda(a_eq))

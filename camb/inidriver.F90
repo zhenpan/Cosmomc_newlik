@@ -108,31 +108,17 @@
         P%omegab = Ini_Read_Double('ombh2')/(P%H0/100)**2
         P%omegac = Ini_Read_Double('omch2')/(P%H0/100)**2
         P%omegan = Ini_Read_Double('omnuh2')/(P%H0/100)**2
-        P%omegac_idm = Ini_Read_Double('omidmh2')/(P%H0/100)**2                             !ZP idm--interacting dark matter
-        P%omegav = 1- Ini_Read_Double('omk') - P%omegab-P%omegac - P%omegan-P%omegac_idm    !ZP
+        P%omegav = 1- Ini_Read_Double('omk') - P%omegab-P%omegac - P%omegan
     else
         P%omegab = Ini_Read_Double('omega_baryon')
         P%omegac = Ini_Read_Double('omega_cdm')
         P%omegav = Ini_Read_Double('omega_lambda')
         P%omegan = Ini_Read_Double('omega_neutrino')
-        P%omegac_idm = Ini_Read_Double('omega_idm')          !ZP idm
     end if
 
     P%tcmb   = Ini_Read_Double('temp_cmb',COBE_CMBTemp)
     P%yhe    = Ini_Read_Double('helium_fraction',0.24_dl)
     P%Num_Nu_massless  = Ini_Read_Double('massless_neutrinos')
-    
-    P%Num_drf= Ini_Read_Double('Num_drf')              !ZP: eff num of drf
-    P%Gamma0 = Ini_Read_Double('Gamma0')*1.e-7   !ZP: idm-drf coupling constant, in unit of 1.e-7 Mpc^-2
-   
-    !ZP turn on idm-drf coupling or not 
-    if (P%Gamma0 > 0) then 
-        P%has_idmdrf_cpl = .true.
-    else 
-        P%has_idmdrf_cpl = .false.
-    end if 
-
-
 
     P%Nu_mass_eigenstates = Ini_Read_Int('nu_mass_eigenstates',1)
     if (P%Nu_mass_eigenstates > max_nu) error stop 'too many mass eigenstates'
