@@ -105,9 +105,9 @@
     P%Num_Nu_Massless = CMB%nnu
 
     !ZP idm-drf
-    !P%omegac_idm = CMB%omidm
-    !P%Num_drf    = CMB%Num_drf
-    !P%Gamma0     = CMB%Gamma0
+    P%omegac_idm = CMB%omidm
+    P%Num_drf    = CMB%Num_drf
+    P%Gamma0     = CMB%Gamma0*1.e-7
     !P%beta       = CMB%beta
 
     P%share_delta_neff = .false.
