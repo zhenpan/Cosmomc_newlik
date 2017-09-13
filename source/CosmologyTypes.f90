@@ -111,6 +111,7 @@
         !Now remaining (non-independent) parameters
         real(mcp) omb, omc, omv, omnu, omk, omdm
         real(mcp) ombh2, omch2, omnuh2, omdmh2
+        real(mcp) omidm, omidmh2, Num_drf, Gamma0  !ZP idm-drf parameters 
         real(mcp) zre, zre_delta, nufrac
         real(mcp) h, H0, tau
         real(mcp) w, wa

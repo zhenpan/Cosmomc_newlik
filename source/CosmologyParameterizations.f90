@@ -71,7 +71,7 @@
     call Names%AddDerivedRange('H0', this%H0_min, this%H0_max)
     this%num_derived = Names%num_derived
     !set number of hard parameters, number of initial power spectrum parameters
-    call this%SetTheoryParameterNumbers(16,last_power_index)
+    call this%SetTheoryParameterNumbers(19,last_power_index)  !ZP idm-drf, was 16, now +(omidmh2, Num_drf, Gamma0)
 
     end subroutine TP_Init
 
@@ -312,9 +312,15 @@
             end if
         end if
 
+        !ZP idm-drf 
+        CMB%omidmh2 = Params(17)
+        CMB%Num_drf = Params(18)
+        CMB%Gamma0  = Params(19)
+        !CMB%Gpwr    = Params(20)
+
         CMB%omnuh2 = CMB%omnuh2 + CMB%omnuh2_sterile
         CMB%omch2 = Params(2)
-        CMB%omdmh2 = CMB%omch2+ CMB%omnuh2
+        CMB%omdmh2 = CMB%omch2+ CMB%omnuh2 + CMB%omidmh2     !ZP idm
         CMB%nufrac=CMB%omnuh2/CMB%omdmh2
 
         if (CosmoSettings%bbn_consistency) then
@@ -336,6 +342,7 @@
     h2 = CMB%h**2
     CMB%omb = CMB%ombh2/h2
     CMB%omc = CMB%omch2/h2
+    CMB%omidm = CMB%omidmh2/h2         !ZP idm
     CMB%omnu = CMB%omnuh2/h2
     CMB%omdm = CMB%omdmh2/h2
     CMB%omv = 1- CMB%omk - CMB%omb - CMB%omdm

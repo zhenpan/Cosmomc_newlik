@@ -103,6 +103,13 @@
     P%Num_Nu_Massive = 0
     P%Nu_mass_numbers = 0
     P%Num_Nu_Massless = CMB%nnu
+
+    !ZP idm-drf
+    P%omegac_idm = CMB%omidm
+    P%Num_drf    = CMB%Num_drf
+    P%Gamma0     = CMB%Gamma0
+    !P%beta       = CMB%beta
+
     P%share_delta_neff = .false.
     if (CMB%omnuh2>0) then
         call CAMB_SetNeutrinoHierarchy(P, CMB%omnuh2, CMB%omnuh2_sterile, CMB%nnu, &
