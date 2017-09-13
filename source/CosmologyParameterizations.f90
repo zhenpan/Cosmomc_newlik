@@ -71,7 +71,7 @@
     call Names%AddDerivedRange('H0', this%H0_min, this%H0_max)
     this%num_derived = Names%num_derived
     !set number of hard parameters, number of initial power spectrum parameters
-    call this%SetTheoryParameterNumbers(19,last_power_index)  !ZP idm-drf, was 16, now +(omidmh2, Num_drf, Gamma0)
+    call this%SetTheoryParameterNumbers(20,last_power_index)  !ZP idm-drf, was 16, now +(omidmh2, Num_drf, Gamma0, Gpwr)
 
     end subroutine TP_Init
 
@@ -316,7 +316,7 @@
         CMB%omidmh2 = Params(17)
         CMB%Num_drf = Params(18)
         CMB%Gamma0  = Params(19)
-        !CMB%Gpwr    = Params(20)
+        CMB%Gpwr    = Params(20)
 
         CMB%omnuh2 = CMB%omnuh2 + CMB%omnuh2_sterile
         CMB%omch2 = Params(2)

@@ -114,6 +114,7 @@
         real(dl)  :: omegac_idm     !ZP Omega of idm  (interacting dark matter)
 	real(dl)  :: Num_drf        !ZP num of drf (dark radiation fluid)
 	real(dl)  :: Gamma0         !ZP idm-drf coupling constant
+        integer   :: Gpwr           !ZP idm-drf coupling power
         logical   :: has_idmdrf_cpl !ZP    
         integer   :: Num_Nu_massive !sum of Nu_mass_numbers below
         integer   :: Nu_mass_eigenstates  !1 for degenerate masses

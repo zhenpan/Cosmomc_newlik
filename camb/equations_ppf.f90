@@ -2442,7 +2442,7 @@
     ayprime(5)=vbdot
 
 
-    Gamma_t = CP%Gamma0/a2                          !ZP idm-drf Gamma_t = Gamma0/a^2
+    Gamma_t = CP%Gamma0/a**CP%Gpwr                  !ZP idm-drf Gamma_t = Gamma0/a^2
     R_idm   = grhoc_idm_t/grhog_drf_t               !ZP rho_idm/rho_drf
 
     !ZP  idm equation of motion.

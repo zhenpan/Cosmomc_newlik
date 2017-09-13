@@ -124,6 +124,7 @@
     
     P%Num_drf= Ini_Read_Double('Num_drf')              !ZP: eff num of drf
     P%Gamma0 = Ini_Read_Double('Gamma0')*1.e-7   !ZP: idm-drf coupling constant, in unit of 1.e-7 Mpc^-2
+    P%Gpwr   = Ini_Read_Int('Gpwr')              !ZP: idm-drf coupling power
    
     !ZP turn on idm-drf coupling or not 
     if (P%Gamma0 > 0) then 

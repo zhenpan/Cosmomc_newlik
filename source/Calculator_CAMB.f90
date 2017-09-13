@@ -108,7 +108,7 @@
     P%omegac_idm = CMB%omidm
     P%Num_drf    = CMB%Num_drf
     P%Gamma0     = CMB%Gamma0*1.e-7
-    !P%beta       = CMB%beta
+    P%Gpwr       = CMB%Gpwr
 
     P%share_delta_neff = .false.
     if (CMB%omnuh2>0) then
